@@ -771,15 +771,28 @@ async def user_back(callback: CallbackQuery, state: FSMContext):
 # ================= ЗАПУСК =================
 async def main():
     await init_db()
+    print("🔍 Проверка библиотек...")
+    print("=" * 40)
     print("Бот запущен!")
     print(f"👥 Статистика: ВКЛЮЧЕНА")
     print(f"🔗 Реферальные ссылки: ВКЛЮЧЕНЫ")
     print(f"🤖 Username бота: @{BOT_USERNAME}")
     print(f"💰 BotoHub: {'АКТИВНА' if BOTOHUB_TOKEN else 'ОТКЛЮЧЕНА'}")
-    await dp.start_polling(bot)
+    
+    # ВАЖНО: Сбрасываем webhook и ожидающие обновления
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+        print("✅ Webhook сброшен")
+    except Exception as e:
+        print(f"⚠️ Не удалось сбросить webhook: {e}")
+    
+    # Запускаем polling
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Бот остановлен.")
+        print("\n⛔ Бот остановлен пользователем")
+    except Exception as e:
+        print(f"\n❌ Фатальная ошибка: {e}")
