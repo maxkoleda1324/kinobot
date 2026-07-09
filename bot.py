@@ -1,3 +1,30 @@
+# ================= АВТОУСТАНОВКА БИБЛИОТЕК =================
+import subprocess
+import sys
+
+def install_libraries():
+    """Автоматическая установка необходимых библиотек"""
+    required = ['aiogram', 'aiosqlite', 'aiohttp']
+    
+    for lib in required:
+        try:
+            __import__(lib)
+            print(f"✅ {lib} уже установлен")
+        except ImportError:
+            print(f"📦 Устанавливаю {lib}...")
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
+                print(f"✅ {lib} успешно установлен!")
+            except Exception as e:
+                print(f"❌ Ошибка при установке {lib}: {e}")
+                print("Попробуйте установить вручную: pip install " + lib)
+
+# Запускаем установку ПЕРЕД основными импортами
+print("🔍 Проверка библиотек...")
+install_libraries()
+print("=" * 40)
+
+# ================= ОСНОВНЫЕ ИМПОРТЫ =================
 import asyncio
 import logging
 import os
@@ -289,7 +316,7 @@ async def admin_stats(callback: CallbackQuery):
         
         stats_text = (
             f"📊 <b>Статистика бота</b>\n\n"
-            f" <b>Всего пользователей:</b> {total}\n"
+            f"👥 <b>Всего пользователей:</b> {total}\n"
             f"📅 <b>Сегодня:</b> +{today}\n"
             f"📆 <b>За неделю:</b> +{week}\n"
             f"🗓 <b>За месяц:</b> +{month}\n\n"
@@ -313,7 +340,7 @@ async def admin_stats(callback: CallbackQuery):
             
     except Exception as e:
         logging.error(f"Ошибка в admin_stats: {e}")
-        await callback.answer(f"️ Ошибка: {str(e)}", show_alert=True)
+        await callback.answer(f"⚠️ Ошибка: {str(e)}", show_alert=True)
 
 @router.callback_query(F.data == "admin_export_users")
 async def admin_export_users(callback: CallbackQuery):
@@ -354,7 +381,7 @@ async def admin_ref_links_menu(callback: CallbackQuery):
         if not links:
             text = "🔗 <b>Реферальные ссылки</b>\n\nПока нет созданных ссылок."
         else:
-            text = " <b>Реферальные ссылки</b>\n\n"
+            text = "🔗 <b>Реферальные ссылки</b>\n\n"
             for link in links:
                 text += f"<b>{link[1]}</b>\n"
                 text += f"🖱 Переходов: {link[3]}\n"
@@ -393,7 +420,7 @@ async def create_ref_link_process(message: Message, state: FSMContext):
     
     text = (
         f"✅ <b>Ссылка создана!</b>\n\n"
-        f" <b>Название:</b> {name}\n"
+        f"📌 <b>Название:</b> {name}\n"
         f"🔑 <b>Код:</b> <code>{code}</code>\n\n"
         f"🔗 <b>Ваша ссылка:</b>\n"
         f"<code>{link}</code>\n\n"
@@ -402,7 +429,7 @@ async def create_ref_link_process(message: Message, state: FSMContext):
     )
     
     kb = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=" Скопировать ссылку", url=link)],
+        [InlineKeyboardButton(text="📋 Скопировать ссылку", url=link)],
         [InlineKeyboardButton(text="🔙 К списку ссылок", callback_data="admin_ref_links")]
     ])
     
@@ -460,7 +487,7 @@ async def delete_folder(callback: CallbackQuery):
         await admin_folders_menu(callback)
     except Exception as e:
         logging.error(f"Ошибка при удалении папки: {e}")
-        await callback.answer(f"️ Ошибка: {str(e)}", show_alert=True)
+        await callback.answer(f"⚠️ Ошибка: {str(e)}", show_alert=True)
 
 # ================= ДОБАВЛЕНИЕ КОНТЕНТА =================
 
@@ -564,7 +591,7 @@ async def edit_content_menu(callback: CallbackQuery, state: FSMContext):
         [InlineKeyboardButton(text="🔗 Ссылка", callback_data="edit_curl")],
         [InlineKeyboardButton(text="🖼 Фото", callback_data="edit_cphoto")],
         [InlineKeyboardButton(text="📝 Описание", callback_data="edit_cdesc")],
-        [InlineKeyboardButton(text=" Назад", callback_data="admin_edit_content")]
+        [InlineKeyboardButton(text="🔙 Назад", callback_data="admin_edit_content")]
     ]
     await callback.message.edit_text("Что изменить?", reply_markup=InlineKeyboardMarkup(inline_keyboard=kb))
 
